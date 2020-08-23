@@ -10,3 +10,5 @@ This is a java project to manage a mobile store inventory and sales. We will use
 * MySQL Connector
 * Eclipse IDE
 
+### It is a console based application
+
