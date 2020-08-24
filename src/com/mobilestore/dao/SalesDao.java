@@ -3,6 +3,7 @@ package com.mobilestore.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,12 +20,12 @@ public class SalesDao {
 		
 		int seqSalesId = 0;
 		int salesDateLength = salesDate.toString().length();
-		String generatedSalesId = salesDate.toString().substring(salesDateLength - 2, salesDateLength);
+		String generatedSalesId = salesDate.toString().substring(salesDateLength - 2, salesDateLength).toUpperCase();
 		
 		try {
 			conn = DBUtil.getConnection();
 			stmt = conn.createStatement();
-			stmt.executeUpdate("INSERT INTO SEQ_SALES_ID VALUES()");
+			stmt.executeUpdate("INSERT INTO SalesIdSeq VALUES()");
 			ResultSet rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
 			
 			rs.next();
@@ -34,6 +35,12 @@ public class SalesDao {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -49,18 +56,23 @@ public class SalesDao {
 		
 		try {
 			conn = DBUtil.getConnection();
-			pstmt = conn.prepareStatement("INSERT INTO SALES_REPORT VALUES(?, ?, ?, ?, ?)");
+			pstmt = conn.prepareStatement("INSERT INTO Sales VALUES(?, ?, ?, ?, ?)");
 			pstmt.setString(1, sales.getSalesId());
 			pstmt.setDate(2,  salesDate);
 			pstmt.setString(3, sales.getMobileId());
 			pstmt.setInt(4, sales.getQuantitySold());
 			pstmt.setDouble(5, sales.getSalesPricePerUnit());
 			
-			if (pstmt.executeUpdate() == 1) status = false;
+			if (pstmt.executeUpdate() == 1) status = true;
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			status = false;
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return status;
 	}
@@ -77,7 +89,7 @@ public class SalesDao {
 		try {
 			conn = DBUtil.getConnection();
 			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM SALES_REPORT_VIEW");
+			ResultSet rs = stmt.executeQuery("SELECT * FROM SalesReport");
 			
 			while (rs.next()) {
 				SalesReport sr = new SalesReport();
@@ -89,11 +101,19 @@ public class SalesDao {
 				sr.setQuantitySold(rs.getInt(6));
 				sr.setUnitPrice(rs.getDouble(7));
 				sr.setSalesPricePerUnit(rs.getDouble(8));
-				sr.setProfitAmount(rs.getDouble(9));
+				sr.setProfitPerUnit(rs.getDouble(9));
+				sr.setTotalProfit(rs.getDouble(10));
+				
 				salesList.add(sr);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return salesList;
 	}

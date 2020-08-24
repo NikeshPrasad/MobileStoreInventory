@@ -3,6 +3,7 @@ package com.mobilestore.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -19,9 +20,9 @@ public class StockDao {
 		
 		try {
 			conn = DBUtil.getConnection();
-			pstmt = conn.prepareStatement("INSERT INTO STOCK VALUES(?, ?, ?, ?, ?)");
-			pstmt.setString(1, mobile.getBrand());
-			pstmt.setString(2, mobile.getMobileId());
+			pstmt = conn.prepareStatement("INSERT INTO Stock VALUES(?, ?, ?, ?, ?)");
+			pstmt.setString(1, mobile.getMobileId());
+			pstmt.setString(2, mobile.getBrand());
 			pstmt.setString(3,  mobile.getMobileName());
 			pstmt.setInt(4, mobile.getQuantityOnHand());
 			pstmt.setDouble(5,  mobile.getUnitPrice());
@@ -29,6 +30,12 @@ public class StockDao {
 			if (pstmt.executeUpdate() == 1) status = true;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return status;
 	}
@@ -47,17 +54,23 @@ public class StockDao {
 		try {
 			conn = DBUtil.getConnection();
 			stmt = conn.createStatement();
-			stmt.executeUpdate("INSERT INTO SEQ_MOBILE_ID VALUES()");
+			stmt.executeUpdate("INSERT INTO MobileIdSeq VALUES()");
 			ResultSet rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
 			
 			if (rs.next())
 				seqMobileId = rs.getInt(1);
 			
-			generatedMobileId += mobileName.substring(0, 2);
+			generatedMobileId += mobileName.substring(0, 2).toUpperCase();
 			generatedMobileId += seqMobileId;
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return generatedMobileId;
@@ -73,13 +86,19 @@ public class StockDao {
 		
 		try {
 			conn = DBUtil.getConnection();
-			pstmt = conn.prepareStatement("UPDATE STOCK SET Quantity_On_Hand = Quantity_On_Hand + ? WHERE Mobile_Id = ?");
+			pstmt = conn.prepareStatement("UPDATE Stock SET QuantityOnHand = QuantityOnHand + ? WHERE MobileId = ?");
 			pstmt.setInt(1, addedQuantity);
 			pstmt.setString(2, mobileId);
 			
 			if (pstmt.executeUpdate() == 1) status = true;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 				
 		return status;
@@ -96,13 +115,19 @@ public class StockDao {
 		
 		try {
 			conn = DBUtil.getConnection();
-			pstmt = conn.prepareStatement("UPDATE STOCK SET Quantity_On_Hand = Quantity_On_Hand - ? WHERE Mobile_Id = ?");
+			pstmt = conn.prepareStatement("UPDATE Stock SET QuantityOnHand = QuantityOnHand - ? WHERE MobileId = ?");
 			pstmt.setInt(1, soldQuantity);
 			pstmt.setString(2, mobileId);
 			
 			if (pstmt.executeUpdate() == 1) status = true;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return status;
 	}
@@ -117,7 +142,7 @@ public class StockDao {
 		
 		try {
 			conn = DBUtil.getConnection();
-			pstmt = conn.prepareStatement("SELECT * FROM STOCK WHERE Mobile_Id = ?");
+			pstmt = conn.prepareStatement("SELECT * FROM Stock WHERE MobileId = ?");
 			pstmt.setString(1, mobileId);
 			
 			ResultSet rs = pstmt.executeQuery();
@@ -131,6 +156,12 @@ public class StockDao {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return mobile;
@@ -147,7 +178,7 @@ public class StockDao {
 		try {
 			conn = DBUtil.getConnection();
 			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM STOCK");
+			ResultSet rs = stmt.executeQuery("SELECT * FROM Stock");
 			
 			mobilesList = new ArrayList<Mobile>();
 			Mobile mobile = new Mobile();
@@ -162,6 +193,12 @@ public class StockDao {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return mobilesList;
@@ -177,12 +214,18 @@ public class StockDao {
 		
 		try {
 			conn = DBUtil.getConnection();
-			pstmt = conn.prepareStatement("DELETE FROM STOCK WHERE Mobile_Id = ?");
+			pstmt = conn.prepareStatement("DELETE FROM Stock WHERE MobileId = ?");
 			pstmt.setString(1, mobileId);
 			
 			if (pstmt.executeUpdate() == 1) status = true;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return status;
 	}
